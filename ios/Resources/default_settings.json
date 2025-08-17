@@ -1,0 +1,62 @@
+{
+  "alertSettings": {
+    "enableVibration": true,
+    "enableSound": true,
+    "enableSpeech": true,
+    "vibrationDuration": 5.0,
+    "alertVolume": 0.8,
+    "speechRate": 0.5,
+    "speechVolume": 0.7,
+    "preferredPlatform": "imessage",
+    "enableLocationSharing": true,
+    "enableEmergencyNumbers": true
+  },
+  "whatsAppScraping": {
+    "isEnabled": false,
+    "lastWarningShown": null,
+    "usageCount": 0,
+    "lastUsed": null,
+    "warnings": []
+  },
+  "locationSettings": {
+    "accuracy": "best",
+    "updateInterval": 10,
+    "backgroundUpdates": true,
+    "showAddress": true,
+    "showCoordinates": true,
+    "showMapLink": true
+  },
+  "notificationSettings": {
+    "enableLocalNotifications": true,
+    "enableSound": true,
+    "enableBadge": true,
+    "enableAlert": true,
+    "notificationStyle": "banner"
+  },
+  "userConsent": {
+    "hasAccepted": false,
+    "acceptedDate": null,
+    "acceptedVersion": null
+  },
+  "platforms": {
+    "imessage": {
+      "enabled": true,
+      "isDefault": true,
+      "description": "Messages automatiques via l'application Messages d'iOS",
+      "isAlwaysAvailable": true,
+      "requiresConsent": false
+    },
+    "whatsapp": {
+      "enabled": false,
+      "isDefault": false,
+      "description": "Messages automatiques via WhatsApp Web (mode expérimental)",
+      "isAlwaysAvailable": false,
+      "requiresConsent": true,
+      "warnings": [
+        "Risque de bannissement de compte",
+        "Fonctionnalité expérimentale",
+        "Utilisation responsable requise"
+      ]
+    }
+  }
+}

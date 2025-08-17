@@ -1,0 +1,298 @@
+{
+  "languages": {
+    "fr": {
+      "name": "Français",
+      "nativeName": "Français",
+      "region": "FR",
+      "strings": {
+        "app": {
+          "name": "SafetyRing",
+          "tagline": "Système d'alerte d'urgence intelligent",
+          "version": "Version",
+          "build": "Build"
+        },
+        "navigation": {
+          "home": "Accueil",
+          "settings": "Paramètres",
+          "recipients": "Destinataires",
+          "templates": "Templates",
+          "logs": "Historique",
+          "help": "Aide"
+        },
+        "status": {
+          "bluetooth": "Bluetooth",
+          "network": "Réseau",
+          "location": "Localisation",
+          "connected": "Connecté",
+          "disconnected": "Déconnecté",
+          "scanning": "Scan en cours...",
+          "online": "En ligne",
+          "offline": "Hors ligne",
+          "active": "Active",
+          "inactive": "Inactive"
+        },
+        "alerts": {
+          "emergency": "🚨 ALERTE D'URGENCE",
+          "cancel": "Annuler l'alerte",
+          "active": "Alerte active",
+          "countdown": "secondes restantes",
+          "trigger": "Déclencher",
+          "stop": "Arrêter",
+          "confirm": "Confirmer",
+          "cancel": "Annuler"
+        },
+        "templates": {
+          "title": "🚨 Templates d'urgence",
+          "select": "Sélectionner",
+          "customize": "Personnaliser",
+          "create": "Créer",
+          "edit": "Modifier",
+          "delete": "Supprimer",
+          "activate": "Activer",
+          "deactivate": "Désactiver"
+        },
+        "recipients": {
+          "title": "📱 Destinataires",
+          "add": "Ajouter",
+          "edit": "Modifier",
+          "remove": "Supprimer",
+          "name": "Nom",
+          "phoneNumber": "Numéro de téléphone",
+          "platforms": "Plateformes",
+          "active": "Actif",
+          "inactive": "Inactif"
+        },
+        "messaging": {
+          "sms": "SMS",
+          "whatsapp": "WhatsApp",
+          "telegram": "Telegram",
+          "signal": "Signal",
+          "send": "Envoyer",
+          "sent": "Envoyé",
+          "failed": "Échec",
+          "pending": "En attente"
+        },
+        "location": {
+          "title": "📍 Localisation",
+          "address": "Adresse",
+          "coordinates": "Coordonnées",
+          "map": "Carte",
+          "time": "Heure",
+          "unknown": "Inconnue",
+          "updating": "Mise à jour...",
+          "error": "Erreur"
+        },
+        "settings": {
+          "title": "⚙️ Paramètres",
+          "general": "Général",
+          "alerts": "Alertes",
+          "messaging": "Messagerie",
+          "location": "Localisation",
+          "notifications": "Notifications",
+          "accessibility": "Accessibilité",
+          "about": "À propos"
+        },
+        "emergency": {
+          "aggression": "🚨 Agression",
+          "medical": "🏥 Urgence Médicale",
+          "accident": "🚗 Accident de la Route",
+          "danger": "⚠️ Danger Immédiat",
+          "fire": "🔥 Incendie",
+          "natural": "🌪️ Catastrophe Naturelle",
+          "security": "🛡️ Sécurité",
+          "custom": "✏️ Personnalisé"
+        },
+        "whatsapp": {
+          "scraping": "Mode Urgence Critique - WhatsApp",
+          "enabled": "Activé",
+          "disabled": "Désactivé",
+          "status": "Statut",
+          "disclaimer": "Avertissements",
+          "guidelines": "Guide d'utilisation",
+          "risks": "Risques",
+          "enable": "Activer",
+          "disable": "Désactiver"
+        },
+        "common": {
+          "ok": "OK",
+          "cancel": "Annuler",
+          "save": "Enregistrer",
+          "delete": "Supprimer",
+          "edit": "Modifier",
+          "add": "Ajouter",
+          "close": "Fermer",
+          "back": "Retour",
+          "next": "Suivant",
+          "previous": "Précédent",
+          "done": "Terminé",
+          "error": "Erreur",
+          "success": "Succès",
+          "warning": "Avertissement",
+          "info": "Information"
+        }
+      }
+    },
+    "en": {
+      "name": "English",
+      "nativeName": "English",
+      "region": "US",
+      "strings": {
+        "app": {
+          "name": "SafetyRing",
+          "tagline": "Intelligent Emergency Alert System",
+          "version": "Version",
+          "build": "Build"
+        },
+        "navigation": {
+          "home": "Home",
+          "settings": "Settings",
+          "recipients": "Recipients",
+          "templates": "Templates",
+          "logs": "History",
+          "help": "Help"
+        },
+        "status": {
+          "bluetooth": "Bluetooth",
+          "network": "Network",
+          "location": "Location",
+          "connected": "Connected",
+          "disconnected": "Disconnected",
+          "scanning": "Scanning...",
+          "online": "Online",
+          "offline": "Offline",
+          "active": "Active",
+          "inactive": "Inactive"
+        },
+        "alerts": {
+          "emergency": "🚨 EMERGENCY ALERT",
+          "cancel": "Cancel Alert",
+          "active": "Alert Active",
+          "countdown": "seconds remaining",
+          "trigger": "Trigger",
+          "stop": "Stop",
+          "confirm": "Confirm",
+          "cancel": "Cancel"
+        },
+        "templates": {
+          "title": "🚨 Emergency Templates",
+          "select": "Select",
+          "customize": "Customize",
+          "create": "Create",
+          "edit": "Edit",
+          "delete": "Delete",
+          "activate": "Activate",
+          "deactivate": "Deactivate"
+        },
+        "recipients": {
+          "title": "📱 Recipients",
+          "add": "Add",
+          "edit": "Edit",
+          "remove": "Remove",
+          "name": "Name",
+          "phoneNumber": "Phone Number",
+          "platforms": "Platforms",
+          "active": "Active",
+          "inactive": "Inactive"
+        },
+        "messaging": {
+          "sms": "SMS",
+          "whatsapp": "WhatsApp",
+          "telegram": "Telegram",
+          "signal": "Signal",
+          "send": "Send",
+          "sent": "Sent",
+          "failed": "Failed",
+          "pending": "Pending"
+        },
+        "location": {
+          "title": "📍 Location",
+          "address": "Address",
+          "coordinates": "Coordinates",
+          "map": "Map",
+          "time": "Time",
+          "unknown": "Unknown",
+          "updating": "Updating...",
+          "error": "Error"
+        },
+        "settings": {
+          "title": "⚙️ Settings",
+          "general": "General",
+          "alerts": "Alerts",
+          "messaging": "Messaging",
+          "location": "Location",
+          "notifications": "Notifications",
+          "accessibility": "Accessibility",
+          "about": "About"
+        },
+        "emergency": {
+          "aggression": "🚨 Aggression",
+          "medical": "🏥 Medical Emergency",
+          "accident": "🚗 Road Accident",
+          "danger": "⚠️ Immediate Danger",
+          "fire": "🔥 Fire",
+          "natural": "🌪️ Natural Disaster",
+          "security": "🛡️ Security",
+          "custom": "✏️ Custom"
+        },
+        "whatsapp": {
+          "scraping": "Critical Emergency Mode - WhatsApp",
+          "enabled": "Enabled",
+          "disabled": "Disabled",
+          "status": "Status",
+          "disclaimer": "Disclaimers",
+          "guidelines": "Usage Guidelines",
+          "risks": "Risks",
+          "enable": "Enable",
+          "disable": "Disable"
+        },
+        "common": {
+          "ok": "OK",
+          "cancel": "Cancel",
+          "save": "Save",
+          "delete": "Delete",
+          "edit": "Edit",
+          "add": "Add",
+          "close": "Close",
+          "back": "Back",
+          "next": "Next",
+          "previous": "Previous",
+          "done": "Done",
+          "error": "Error",
+          "success": "Success",
+          "warning": "Warning",
+          "info": "Information"
+        }
+      }
+    }
+  },
+  "defaultLanguage": "fr",
+  "supportedLanguages": ["fr", "en"],
+  "dateFormats": {
+    "fr": {
+      "short": "dd/MM/yyyy",
+      "medium": "dd MMM yyyy",
+      "long": "dd MMMM yyyy",
+      "time": "HH:mm",
+      "datetime": "dd/MM/yyyy HH:mm"
+    },
+    "en": {
+      "short": "MM/dd/yyyy",
+      "medium": "MMM dd, yyyy",
+      "long": "MMMM dd, yyyy",
+      "time": "HH:mm",
+      "datetime": "MM/dd/yyyy HH:mm"
+    }
+  },
+  "numberFormats": {
+    "fr": {
+      "decimal": ",",
+      "thousands": " ",
+      "currency": "€"
+    },
+    "en": {
+      "decimal": ".",
+      "thousands": ",",
+      "currency": "$"
+    }
+  }
+}

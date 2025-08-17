@@ -1,0 +1,76 @@
+{
+  "categories": [
+    {
+      "id": "aggression",
+      "name": "Agression",
+      "icon": "exclamationmark.triangle.fill",
+      "color": "red",
+      "description": "Situations d'agression ou de violence",
+      "priority": 1,
+      "emergencyNumbers": ["17", "15"]
+    },
+    {
+      "id": "medical",
+      "name": "Urgence Médicale",
+      "icon": "cross.fill",
+      "color": "orange",
+      "description": "Problèmes de santé critiques",
+      "priority": 1,
+      "emergencyNumbers": ["15", "18"]
+    },
+    {
+      "id": "accident",
+      "name": "Accident",
+      "icon": "car.fill",
+      "color": "yellow",
+      "description": "Accidents de la route ou autres",
+      "priority": 2,
+      "emergencyNumbers": ["17", "15", "18"]
+    },
+    {
+      "id": "danger",
+      "name": "Danger Immédiat",
+      "icon": "flame.fill",
+      "color": "red",
+      "description": "Situations dangereuses diverses",
+      "priority": 1,
+      "emergencyNumbers": ["17", "15", "18"]
+    },
+    {
+      "id": "fire",
+      "name": "Incendie",
+      "icon": "flame.fill",
+      "color": "orange",
+      "description": "Incendies et situations de feu",
+      "priority": 1,
+      "emergencyNumbers": ["18", "17"]
+    },
+    {
+      "id": "natural",
+      "name": "Catastrophe Naturelle",
+      "icon": "tornado",
+      "color": "purple",
+      "description": "Séismes, inondations, etc.",
+      "priority": 2,
+      "emergencyNumbers": ["17", "15", "18"]
+    },
+    {
+      "id": "security",
+      "name": "Sécurité",
+      "icon": "shield.fill",
+      "color": "blue",
+      "description": "Problèmes de sécurité générale",
+      "priority": 2,
+      "emergencyNumbers": ["17"]
+    },
+    {
+      "id": "custom",
+      "name": "Personnalisé",
+      "icon": "pencil",
+      "color": "gray",
+      "description": "Messages personnalisés",
+      "priority": 3,
+      "emergencyNumbers": []
+    }
+  ]
+}

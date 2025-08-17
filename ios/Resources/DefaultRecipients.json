@@ -1,0 +1,44 @@
+{
+  "recipients": [
+    {
+      "id": "emergency-1",
+      "phoneNumber": "17",
+      "name": "🚔 Police",
+      "platforms": ["sms"],
+      "isActive": true,
+      "isEmergency": true
+    },
+    {
+      "id": "emergency-2",
+      "phoneNumber": "15",
+      "name": "🚑 SAMU",
+      "platforms": ["sms"],
+      "isActive": true,
+      "isEmergency": true
+    },
+    {
+      "id": "emergency-3",
+      "phoneNumber": "18",
+      "name": "🚒 Pompiers",
+      "platforms": ["sms"],
+      "isActive": true,
+      "isEmergency": true
+    },
+    {
+      "id": "example-1",
+      "phoneNumber": "+33123456789",
+      "name": "👨‍👩‍👧‍👦 Famille",
+      "platforms": ["sms", "whatsapp"],
+      "isActive": false,
+      "isEmergency": false
+    },
+    {
+      "id": "example-2",
+      "phoneNumber": "+33987654321",
+      "name": "👥 Amis",
+      "platforms": ["whatsapp", "telegram"],
+      "isActive": false,
+      "isEmergency": false
+    }
+  ]
+}

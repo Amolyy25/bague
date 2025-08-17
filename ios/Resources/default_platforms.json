@@ -1,0 +1,73 @@
+{
+  "platforms": [
+    {
+      "id": "imessage",
+      "name": "iMessage (SMS)",
+      "icon": "message.fill",
+      "color": "blue",
+      "scheme": "sms:",
+      "description": "Messages automatiques via l'application Messages d'iOS",
+      "isAlwaysAvailable": true,
+      "requiresApp": false,
+      "supportsAttachments": false,
+      "maxMessageLength": 160,
+      "isDefault": true,
+      "requiresConsent": false,
+      "features": [
+        "Toujours disponible",
+        "Pas d'installation requise",
+        "Interface native iOS",
+        "Historique dans Messages",
+        "Aucun risque de bannissement",
+        "Support complet des templates"
+      ]
+    },
+    {
+      "id": "whatsapp",
+      "name": "WhatsApp",
+      "icon": "message.circle.fill",
+      "color": "green",
+      "scheme": "whatsapp://send",
+      "description": "Messagerie instantanée populaire avec mode scraping expérimental",
+      "isAlwaysAvailable": false,
+      "requiresApp": true,
+      "supportsAttachments": true,
+      "maxMessageLength": 4096,
+      "isDefault": false,
+      "requiresConsent": true,
+      "features": [
+        "Chiffrement de bout en bout",
+        "Support des médias",
+        "Statuts de lecture",
+        "Groupes et contacts",
+        "Mode scraping pour urgences"
+      ],
+      "scraping": {
+        "isSupported": true,
+        "isExperimental": true,
+        "requiresConsent": true,
+        "risks": [
+          "Bannissement de compte possible",
+          "Violation des conditions d'utilisation",
+          "Instabilité des fonctionnalités"
+        ],
+        "guidelines": [
+          "Utiliser uniquement en cas d'urgence réelle",
+          "Éviter les tests répétés",
+          "Privilégier iMessage pour les tests",
+          "Surveiller le compte WhatsApp",
+          "Avoir un plan de secours (SMS)"
+        ]
+      }
+    }
+  ],
+  "fallbacks": {
+    "whatsapp": "https://wa.me/"
+  },
+  "recommendations": {
+    "default": "imessage",
+    "forTesting": "imessage",
+    "forEmergency": "imessage",
+    "whatsappOnly": "Pour situations critiques uniquement"
+  }
+}

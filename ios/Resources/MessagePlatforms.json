@@ -1,0 +1,90 @@
+{
+  "platforms": [
+    {
+      "id": "sms",
+      "name": "SMS",
+      "icon": "message.fill",
+      "color": "blue",
+      "scheme": "sms:",
+      "description": "Messages texte natifs iOS",
+      "isAlwaysAvailable": true,
+      "requiresApp": false,
+      "supportsAttachments": false,
+      "maxMessageLength": 160,
+      "features": [
+        "Toujours disponible",
+        "Pas d'installation requise",
+        "Interface native iOS",
+        "Historique dans Messages"
+      ]
+    },
+    {
+      "id": "whatsapp",
+      "name": "WhatsApp",
+      "icon": "message.circle.fill",
+      "color": "green",
+      "scheme": "whatsapp://send",
+      "description": "Messagerie instantanée populaire",
+      "isAlwaysAvailable": false,
+      "requiresApp": true,
+      "supportsAttachments": true,
+      "maxMessageLength": 4096,
+      "features": [
+        "Chiffrement de bout en bout",
+        "Support des médias",
+        "Statuts de lecture",
+        "Groupes et contacts"
+      ],
+      "scraping": {
+        "isSupported": true,
+        "isExperimental": true,
+        "risks": [
+          "Bannissement de compte possible",
+          "Violation des conditions d'utilisation",
+          "Instabilité des fonctionnalités"
+        ]
+      }
+    },
+    {
+      "id": "telegram",
+      "name": "Telegram",
+      "icon": "paperplane.fill",
+      "color": "blue",
+      "scheme": "tg://msg",
+      "description": "Messagerie sécurisée et rapide",
+      "isAlwaysAvailable": false,
+      "requiresApp": true,
+      "supportsAttachments": true,
+      "maxMessageLength": 4096,
+      "features": [
+        "Chiffrement optionnel",
+        "Support des bots",
+        "Canaux publics",
+        "Stockage cloud"
+      ]
+    },
+    {
+      "id": "signal",
+      "name": "Signal",
+      "icon": "antenna.radiowaves.left.and.right",
+      "color": "purple",
+      "scheme": "sgnl://",
+      "description": "Confidentialité maximale",
+      "isAlwaysAvailable": false,
+      "requiresApp": true,
+      "supportsAttachments": true,
+      "maxMessageLength": 2000,
+      "features": [
+        "Chiffrement de bout en bout par défaut",
+        "Messages éphémères",
+        "Aucune collecte de données",
+        "Open source"
+      ]
+    }
+  ],
+  "fallbacks": {
+    "whatsapp": "https://wa.me/",
+    "telegram": "https://t.me/",
+    "signal": "https://signal.me/"
+  }
+}

@@ -19,7 +19,6 @@ struct SafetyRingApp: App {
                 .environmentObject(alertHandler)
                 .environmentObject(alertSettings)
                 .onAppear {
-                    alertHandler.requestNotificationPermission()
                     bleManager.start()
                 }
         }

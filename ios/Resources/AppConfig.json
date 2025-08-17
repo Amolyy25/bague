@@ -1,0 +1,96 @@
+{
+  "app": {
+    "name": "SafetyRing",
+    "version": "2.0.0",
+    "build": "1",
+    "bundleId": "com.safetyring.app",
+    "displayName": "SafetyRing",
+    "description": "Application de sécurité d'urgence intelligente",
+    "author": "SafetyRing Team",
+    "website": "https://safetyring.app",
+    "support": "support@safetyring.app"
+  },
+  "ble": {
+    "serviceUUID": "1811",
+    "characteristicUUID": "2A46",
+    "deviceName": "SafetyRing",
+    "scanTimeout": 30,
+    "connectionTimeout": 10,
+    "reconnectionAttempts": 3,
+    "reconnectionDelay": 5
+  },
+  "location": {
+    "accuracy": "best",
+    "updateInterval": 10,
+    "distanceFilter": 10,
+    "backgroundUpdates": true,
+    "geocodingTimeout": 15,
+    "maxGeocodingAttempts": 3
+  },
+  "alerts": {
+    "countdownDuration": 5,
+    "vibrationIntensity": "medium",
+    "soundVolume": 0.8,
+    "speechRate": 0.5,
+    "speechVolume": 0.7,
+    "maxRetryAttempts": 3,
+    "retryDelay": 5
+  },
+  "messaging": {
+    "maxRecipients": 50,
+    "maxMessageLength": 1000,
+    "defaultPlatform": "sms",
+    "enableMultiPlatform": false,
+    "whatsAppScraping": {
+      "enabled": false,
+      "maxAttempts": 3,
+      "timeout": 30,
+      "rateLimit": 60
+    }
+  },
+  "storage": {
+    "maxLogEntries": 1000,
+    "maxPendingAlerts": 50,
+    "backupInterval": 86400,
+    "cleanupInterval": 604800
+  },
+  "ui": {
+    "theme": "system",
+    "accentColor": "blue",
+    "enableAnimations": true,
+    "enableHaptics": true,
+    "enableSounds": true,
+    "language": "fr",
+    "region": "FR"
+  },
+  "security": {
+    "encryptStorage": true,
+    "biometricAuth": false,
+    "autoLock": false,
+    "lockTimeout": 300,
+    "maxLoginAttempts": 5,
+    "sessionTimeout": 3600
+  },
+  "notifications": {
+    "enableLocal": true,
+    "enableSound": true,
+    "enableBadge": true,
+    "enableAlert": true,
+    "style": "banner",
+    "grouping": "automatic"
+  },
+  "accessibility": {
+    "enableVoiceOver": true,
+    "enableLargeText": true,
+    "enableHighContrast": false,
+    "enableReduceMotion": false,
+    "enableReduceTransparency": false
+  },
+  "debug": {
+    "enableLogging": true,
+    "logLevel": "info",
+    "enableCrashReporting": false,
+    "enableAnalytics": false,
+    "enablePerformanceMonitoring": false
+  }
+}

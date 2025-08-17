@@ -1,25 +1,50 @@
 name: SafetyRingApp
 options:
-  xcodeVersion: "15.4"
-  deploymentTarget:
-    iOS: "16.0"
+  bundleIdPrefix: com.safetyring
+  deploymentTarget: "16.0"
+  xcodeVersion: '15.4'
+  groupSortPosition: top
+  generateEmptyDirectories: false
+  fileTypes:
+    wav: audio.wav
+    mp3: audio.mp3
+
 targets:
   SafetyRingApp:
     type: application
     platform: iOS
     deploymentTarget: "16.0"
-    info:
-      path: Resources/Info.plist
     sources:
-      - path: Sources
+      - Sources
     resources:
-      - path: Resources
+      - Resources
     settings:
       PRODUCT_BUNDLE_IDENTIFIER: com.safetyring.app
-      PRODUCT_NAME: SafetyRingApp
-      SWIFT_VERSION: 5.0
-      CODE_SIGNING_ALLOWED: NO
-      CODE_SIGNING_REQUIRED: NO
-    scheme:
-      testTargets: []
+      PRODUCT_NAME: SafetyRing
+      DEVELOPMENT_TEAM: ""
+      CODE_SIGNING_ALLOWED: false
+      CODE_SIGNING_REQUIRED: false
+      CODE_SIGNING_IDENTITY: ""
+      INFOPLIST_FILE: Resources/Info.plist
+      ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+      ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+    dependencies: []
+    info:
+      path: Resources/Info.plist
+      properties:
+        CFBundleDisplayName: SafetyRing
+        CFBundleIdentifier: com.safetyring.app
+        CFBundleName: SafetyRing
+        CFBundleVersion: "2.0.0"
+        CFBundleShortVersionString: "2.0.0"
+        LSRequiresIPhoneOS: true
+        UILaunchStoryboardName: LaunchScreen
+        UIMainStoryboardFile: ""
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+        UISupportedInterfaceOrientations~ipad:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
 

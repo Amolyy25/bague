@@ -1,0 +1,92 @@
+{
+  "testing": {
+    "enableTestMode": false,
+    "testBLE": {
+      "enabled": false,
+      "mockDeviceName": "TestSafetyRing",
+      "mockAlertData": "ALERT",
+      "connectionDelay": 2,
+      "alertInterval": 10
+    },
+    "testLocation": {
+      "enabled": false,
+      "mockCoordinates": {
+        "latitude": 48.8566,
+        "longitude": 2.3522
+      },
+      "mockAddress": "1 Rue de la Paix, 75001 Paris, France",
+      "updateInterval": 5
+    },
+    "testMessaging": {
+      "enabled": false,
+      "mockRecipients": [
+        {
+          "phoneNumber": "+33123456789",
+          "name": "Test Contact",
+          "platforms": ["sms", "whatsapp"]
+        }
+      ],
+      "mockMessage": "🚨 TEST - Alerte de test SafetyRing",
+      "sendDelay": 1
+    }
+  },
+  "validation": {
+    "enableValidation": true,
+    "validateBLE": {
+      "checkConnection": true,
+      "checkService": true,
+      "checkCharacteristic": true,
+      "checkNotifications": true
+    },
+    "validateLocation": {
+      "checkPermissions": true,
+      "checkAccuracy": true,
+      "checkGeocoding": true,
+      "checkUpdates": true
+    },
+    "validateMessaging": {
+      "checkRecipients": true,
+      "checkPlatforms": true,
+      "checkMessageFormat": true,
+      "checkDelivery": false
+    },
+    "validateSettings": {
+      "checkDefaults": true,
+      "checkPersistence": true,
+      "checkValidation": true
+    }
+  },
+  "debug": {
+    "enableConsoleLogging": true,
+    "enableFileLogging": false,
+    "logLevel": "debug",
+    "maxLogSize": 1048576,
+    "logRotation": true,
+    "enableCrashDumps": false,
+    "enablePerformanceMetrics": true,
+    "enableNetworkMonitoring": true,
+    "enableBLEMonitoring": true,
+    "enableLocationMonitoring": true
+  },
+  "performance": {
+    "enableProfiling": false,
+    "enableMemoryMonitoring": true,
+    "enableBatteryMonitoring": true,
+    "enableNetworkMonitoring": true,
+    "performanceThresholds": {
+      "appLaunchTime": 3000,
+      "bleConnectionTime": 5000,
+      "locationUpdateTime": 2000,
+      "messageSendTime": 1000,
+      "uiResponseTime": 100
+    }
+  },
+  "simulation": {
+    "enableBLE": false,
+    "enableLocation": false,
+    "enableMessaging": false,
+    "simulationSpeed": 1.0,
+    "randomFailures": false,
+    "failureRate": 0.1
+  }
+}

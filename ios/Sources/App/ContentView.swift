@@ -1,462 +1,502 @@
 import SwiftUI
+import CoreBluetooth
+import CoreLocation
 import MessageUI
-import UIKit
-
-struct AlertSettings {
-    var enableVibration: Bool = true
-    var enableSound: Bool = true
-    var vibrationDuration: Double = 5.0
-    var autoSendSMS: Bool = true
-    var alertSound: String = "default"
-}
+import AVFoundation
 
 struct ContentView: View {
-    @EnvironmentObject var ble: BLEManager
-    @EnvironmentObject var loc: LocationManager
-    @EnvironmentObject var net: ReachabilityMonitor
-    @EnvironmentObject var store: AlertStore
-    @EnvironmentObject var alerts: AlertHandler
-    @EnvironmentObject var settings: AlertSettingsManager
-
-    @State private var newRecipient: String = ""
-    @State private var showingComposer: Bool = false
-    @State private var composerBody: String = ""
-    @State private var showingSettings: Bool = false
-    @State private var isAlertActive: Bool = false
-    @State private var alertCountdown: Double = 5.0
+    @StateObject private var bleManager = BLEManager()
+    @StateObject private var reachability = ReachabilityMonitor()
+    @StateObject private var store = AlertStore()
+    @StateObject private var alertHandler = AlertHandler()
+    @StateObject private var loc = LocationManager()
+    @StateObject private var settings = AlertSettingsManager()
+    @StateObject private var emergencyManager = EmergencyMessageManager()
+    @StateObject private var multiPlatformManager = MultiPlatformMessageManager()
+    @StateObject private var whatsAppScraper = WhatsAppScraperManager()
+    
+    @State private var showingMessageCompose = false
+    @State private var showingEmergencyTemplateSelector = false
+    @State private var showingRecipientEditor = false
+    @StateObject private var messageComposer = MessageComposer()
+    
+    @State private var isAlertActive = false
+    @State private var alertCountdown = 5
     @State private var alertTimer: Timer?
-
+    
     var body: some View {
+        Group {
+            if !multiPlatformManager.hasUserConsent {
+                // Vue de consentement au premier lancement
+                ConsentView(multiPlatformManager: multiPlatformManager)
+            } else {
+                // Interface principale de l'application
+                mainInterface
+            }
+        }
+    }
+    
+    private var mainInterface: some View {
         NavigationStack {
             ZStack {
-                // Background gradient
                 LinearGradient(
-                    colors: [Color.blue.opacity(0.1), Color.purple.opacity(0.05)],
+                    gradient: Gradient(colors: [
+                        Color.blue.opacity(0.1),
+                        Color.purple.opacity(0.05),
+                        Color.blue.opacity(0.1)
+                    ]),
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
                 )
-                .ignoresSafeArea()
+                .edgesIgnoringSafeArea(.all)
                 
                 ScrollView {
-                    VStack(spacing: 24) {
+                    VStack(spacing: 20) {
+                        // Header
+                        VStack(spacing: 8) {
+                            Image(systemName: "shield.checkered")
+                                .font(.system(size: 50))
+                                .foregroundColor(.blue)
+                            
+                            Text("SafetyRing")
+                                .font(.largeTitle)
+                                .fontWeight(.bold)
+                                .foregroundColor(.primary)
+                            
+                            Text("Système d'alerte d'urgence intelligent")
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                        }
+                        .padding(.top)
+                        
                         // Status Cards
-                        statusSection
+                        VStack(spacing: 15) {
+                            StatusCard(
+                                title: "Bluetooth",
+                                status: bleManager.isConnected ? "Connecté" : "Déconnecté",
+                                icon: bleManager.isConnected ? "bluetooth" : "bluetooth.slash",
+                                color: bleManager.isConnected ? .green : .red
+                            )
+                            
+                            StatusCard(
+                                title: "Réseau",
+                                status: reachability.isConnected ? "Connecté" : "Hors ligne",
+                                icon: reachability.isConnected ? "wifi" : "wifi.slash",
+                                color: reachability.isConnected ? .green : .orange
+                            )
+                            
+                            StatusCard(
+                                title: "Localisation",
+                                status: loc.isLocationEnabled ? "Active" : "Inactive",
+                                icon: loc.isLocationEnabled ? "location.fill" : "location.slash",
+                                color: loc.isLocationEnabled ? .green : .red
+                            )
+                        }
                         
-                        // Alert Control
-                        alertControlSection
+                        // Emergency Alert Button
+                        VStack(spacing: 15) {
+                            Button(action: {
+                                if !isAlertActive {
+                                    triggerEmergencyAlert()
+                                }
+                            }) {
+                                HStack {
+                                    Image(systemName: isAlertActive ? "stop.circle.fill" : "exclamationmark.triangle.fill")
+                                        .font(.title2)
+                                    Text(isAlertActive ? "Annuler l'alerte" : "🚨 ALERTE D'URGENCE")
+                                        .fontWeight(.bold)
+                                }
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(
+                                    isAlertActive ?
+                                    LinearGradient(colors: [.red, .orange], startPoint: .leading, endPoint: .trailing) :
+                                    LinearGradient(colors: [.red, .pink], startPoint: .leading, endPoint: .trailing)
+                                )
+                                .cornerRadius(15)
+                                .shadow(radius: 5)
+                            }
+                            .disabled(isAlertActive)
+                            
+                            if isAlertActive {
+                                VStack(spacing: 8) {
+                                    Text("Alerte active - \(alertCountdown)s restantes")
+                                        .font(.headline)
+                                        .foregroundColor(.red)
+                                    
+                                    ProgressView(value: Double(5 - alertCountdown), total: 5)
+                                        .progressViewStyle(LinearProgressViewStyle(tint: .red))
+                                        .scaleEffect(x: 1, y: 2, anchor: .center)
+                                }
+                                .padding()
+                                .background(Color.red.opacity(0.1))
+                                .cornerRadius(10)
+                            }
+                        }
                         
-                        // Recipients
-                        recipientsSection
+                        // Emergency Templates Section
+                        emergencyTemplatesSection
                         
-                        // Alert Logs
-                        alertLogsSection
-                    }
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 16)
-                }
-            }
-            .navigationTitle("SafetyRing")
-            .navigationBarTitleDisplayMode(.large)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: { showingSettings = true }) {
-                        Image(systemName: "gearshape.fill")
+                        // Recipients Section
+                        VStack(alignment: .leading, spacing: 15) {
+                            HStack {
+                                Text("📱 Destinataires")
+                                    .font(.headline)
+                                    .foregroundColor(.primary)
+                                
+                                Spacer()
+                                
+                                Button("Ajouter") {
+                                    showingRecipientEditor = true
+                                }
+                                .buttonStyle(.borderedProminent)
+                            }
+                            
+                            if multiPlatformManager.recipients.isEmpty {
+                                Text("Aucun destinataire configuré")
+                                    .foregroundColor(.secondary)
+                                    .italic()
+                            } else {
+                                ForEach(multiPlatformManager.recipients.filter { $0.isActive }) { recipient in
+                                    RecipientRow(recipient: recipient) {
+                                        // Action when tapped
+                                    }
+                                }
+                            }
+                        }
+                        .padding()
+                        .background(Color(.systemBackground))
+                        .cornerRadius(15)
+                        .shadow(radius: 2)
+                        
+                        // Alert Logs Section
+                        VStack(alignment: .leading, spacing: 15) {
+                            Text("📋 Historique des alertes")
+                                .font(.headline)
+                                .foregroundColor(.primary)
+                            
+                            if store.alertLogs.isEmpty {
+                                Text("Aucune alerte enregistrée")
+                                    .foregroundColor(.secondary)
+                                    .italic()
+                            } else {
+                                ForEach(store.alertLogs.prefix(5)) { log in
+                                    AlertLogRow(log: log)
+                                }
+                            }
+                        }
+                        .padding()
+                        .background(Color(.systemBackground))
+                        .cornerRadius(15)
+                        .shadow(radius: 2)
+                        
+                        // Settings Button
+                        NavigationLink(destination: SettingsView()) {
+                            HStack {
+                                Image(systemName: "gear")
+                                Text("Paramètres")
+                            }
                             .foregroundColor(.blue)
-                    }
-                }
-            }
-        }
-        .sheet(isPresented: $showingComposer) {
-            MessageComposeView(recipients: store.recipients, body: composerBody) { sent in
-                if sent {
-                    store.appendLog(title: "SMS envoyé")
-                } else {
-                    store.appendLog(title: "SMS annulé")
-                }
-            }
-        }
-        .sheet(isPresented: $showingSettings) {
-            SettingsView()
-                .environmentObject(settings)
-        }
-        .onReceive(alerts.alertPublisher) { _ in
-            triggerAlert()
-        }
-        .onChange(of: net.isOnline) { isOnline in
-            if isOnline, store.hasPendingAlerts {
-                presentComposerForPending()
-            }
-        }
-        .onReceive(ble.$isConnected) { connected in
-            if connected {
-                hapticFeedback(.medium)
-            }
-        }
-    }
-
-    // MARK: - UI Components
-    
-    private var statusSection: some View {
-        VStack(spacing: 16) {
-            // BLE Status
-            StatusCard(
-                title: "Connexion BLE",
-                status: ble.isConnected ? .connected : (ble.isScanning ? .scanning : .disconnected),
-                icon: "wave.3.right",
-                action: {
-                    if ble.isConnected {
-                        ble.restartScan()
-                    } else if !ble.isScanning {
-                        ble.restartScan()
-                    }
-                }
-            )
-            
-            // Network Status
-            StatusCard(
-                title: "Connexion réseau",
-                status: net.isOnline ? .connected : .disconnected,
-                icon: "wifi",
-                action: nil
-            )
-        }
-    }
-    
-    private var alertControlSection: some View {
-        VStack(spacing: 16) {
-            if isAlertActive {
-                // Active Alert Countdown
-                VStack(spacing: 12) {
-                    Text("ALERTE ACTIVE")
-                        .font(.title2)
-                        .fontWeight(.bold)
-                        .foregroundColor(.red)
-                    
-                    Text("Annulation possible pendant \(Int(alertCountdown))s")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                    
-                    ProgressView(value: alertCountdown, total: 5.0)
-                        .progressViewStyle(LinearProgressViewStyle(tint: .red))
-                        .scaleEffect(x: 1.2, y: 1.2)
-                    
-                    Button("ANNULER L'ALERTE") {
-                        cancelAlert()
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .tint(.red)
-                    .controlSize(.large)
-                }
-                .padding(20)
-                .background(
-                    RoundedRectangle(cornerRadius: 16)
-                        .fill(Color.red.opacity(0.1))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 16)
-                                .stroke(Color.red.opacity(0.3), lineWidth: 2)
-                        )
-                )
-            } else {
-                // Manual Alert Button
-                Button(action: triggerAlert) {
-                    VStack(spacing: 8) {
-                        Image(systemName: "exclamationmark.triangle.fill")
-                            .font(.system(size: 40))
-                            .foregroundColor(.white)
-                        
-                        Text("DÉCLENCHER ALERTE")
-                            .font(.headline)
-                            .fontWeight(.semibold)
-                            .foregroundColor(.white)
-                    }
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 120)
-                    .background(
-                        LinearGradient(
-                            colors: [Color.red, Color.orange],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
-                    .clipShape(RoundedRectangle(cornerRadius: 20))
-                    .shadow(color: .red.opacity(0.3), radius: 10, x: 0, y: 5)
-                }
-            }
-        }
-    }
-    
-    private var recipientsSection: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            HStack {
-                Image(systemName: "person.2.fill")
-                    .foregroundColor(.blue)
-                Text("Destinataires SMS")
-                    .font(.headline)
-                    .fontWeight(.semibold)
-            }
-            
-            HStack {
-                TextField("+33612345678", text: $newRecipient)
-                    .keyboardType(.phonePad)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 8)
-                            .stroke(Color.blue.opacity(0.3), lineWidth: 1)
-                    )
-                
-                Button("Ajouter") {
-                    addRecipient()
-                }
-                .buttonStyle(.borderedProminent)
-                .controlSize(.small)
-            }
-            
-            if !store.recipients.isEmpty {
-                LazyVStack(spacing: 8) {
-                    ForEach(store.recipients, id: \.self) { num in
-                        RecipientRow(phoneNumber: num) {
-                            store.removeRecipient(num)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.blue.opacity(0.1))
+                            .cornerRadius(10)
                         }
                     }
+                    .padding()
                 }
-            } else {
-                HStack {
-                    Image(systemName: "info.circle")
-                        .foregroundColor(.orange)
-                    Text("Aucun destinataire configuré")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                }
-                .padding()
-                .background(Color.orange.opacity(0.1))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+            }
+            .navigationTitle("")
+            .navigationBarTitleDisplayMode(.inline)
+            .onAppear {
+                loc.requestPermission()
+                loc.startUpdatingLocation()
             }
         }
-        .padding(20)
-        .background(
-            RoundedRectangle(cornerRadius: 16)
-                .fill(Color(.systemBackground))
-                .shadow(color: .black.opacity(0.05), radius: 5, x: 0, y: 2)
-        )
-    }
-    
-    private var alertLogsSection: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            HStack {
-                Image(systemName: "list.bullet.clipboard")
-                    .foregroundColor(.purple)
-                Text("Journal des alertes")
-                    .font(.headline)
-                    .fontWeight(.semibold)
-            }
-            
-            if !store.logs.isEmpty {
-                LazyVStack(spacing: 8) {
-                    ForEach(store.logs.prefix(5)) { log in
-                        AlertLogRow(log: log)
-                    }
-                }
-            } else {
-                HStack {
-                    Image(systemName: "checkmark.circle")
-                        .foregroundColor(.green)
-                    Text("Aucune alerte enregistrée")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                }
-                .padding()
-                .background(Color.green.opacity(0.1))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+        .sheet(isPresented: $showingMessageCompose) {
+            MessageComposeView(
+                recipients: multiPlatformManager.recipients.filter { $0.isActive }.map { $0.phoneNumber },
+                body: loc.getEmergencyLocationText()
+            )
+        }
+        .sheet(isPresented: $showingEmergencyTemplateSelector) {
+            EmergencyTemplateSelectorView(emergencyManager: emergencyManager)
+        }
+        .sheet(isPresented: $showingRecipientEditor) {
+            RecipientEditorView(multiPlatformManager: multiPlatformManager)
+        }
+        .onReceive(bleManager.$lastAlertData) { alertData in
+            if let data = alertData, data == "ALERT" {
+                triggerEmergencyAlert()
             }
         }
-        .padding(20)
-        .background(
-            RoundedRectangle(cornerRadius: 16)
-                .fill(Color(.systemBackground))
-                .shadow(color: .black.opacity(0.05), radius: 5, x: 0, y: 2)
-        )
     }
     
-    // MARK: - Alert Logic
+    // MARK: - Emergency Alert Functions
     
-    private func triggerAlert() {
+    private func triggerEmergencyAlert() {
         guard !isAlertActive else { return }
         
         isAlertActive = true
-        alertCountdown = 5.0
+        alertCountdown = 5
         
-        // Start vibration and countdown
-        if settings.settings.enableVibration {
-            startVibration()
-        }
+        // Déclencher l'alerte locale immédiatement
+        alertHandler.triggerLocalAlert()
         
-        // Start countdown timer
-        alertTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { _ in
+        // Démarrer le compte à rebours
+        alertTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
             if alertCountdown > 0 {
-                alertCountdown -= 0.1
+                alertCountdown -= 1
+                
+                // Vibration continue pendant le compte à rebours
+                let impactFeedback = UIImpactFeedbackGenerator(style: .medium)
+                impactFeedback.impactOccurred()
+                
             } else {
-                executeAlert()
+                // Temps écoulé - envoyer le message
+                sendEmergencyMessage()
+                stopAlert()
             }
         }
     }
     
-    private func cancelAlert() {
+    private func stopAlert() {
         isAlertActive = false
+        alertCountdown = 0
         alertTimer?.invalidate()
         alertTimer = nil
-        stopVibration()
         
-        hapticFeedback(.medium)
-        store.appendLog(title: "Alerte annulée par l'utilisateur")
+        // Arrêter le son d'alerte
+        alertHandler.stopAlertSound()
     }
     
-    private func executeAlert() {
-        isAlertActive = false
-        alertTimer?.invalidate()
-        alertTimer = nil
-        stopVibration()
+    private func sendEmergencyMessage() {
+        // Jouer le son d'alerte dissuasif
+        alertHandler.playAlertSound("alert")
         
-        alerts.triggerLocalAlert()
+        // Envoyer le message selon la plateforme préférée
+        let platform = settings.settings.preferredPlatform
+        let message = emergencyManager.generateCustomMessage(location: loc)
         
-        let coords = loc.lastCoordinate
-        let locationText: String
-        if let c = coords {
-            let url = "https://maps.apple.com/?ll=\(c.latitude),\(c.longitude)"
-            locationText = "Localisation : \(url)"
-        } else {
-            locationText = "Localisation : inconnue"
-        }
-        let body = "🚨 ALERTE : J'ai besoin d'aide ! \n📍 \(locationText)"
-
-        if net.isOnline && MFMessageComposeViewController.canSendText() && !store.recipients.isEmpty {
-            if settings.settings.autoSendSMS {
-                composerBody = body
-                showingComposer = true
-                store.appendLog(title: "SMS automatique préparé")
+        // Mode multi-plateforme simplifié (iMessage + WhatsApp)
+        let activeRecipients = multiPlatformManager.recipients.filter { $0.isActive }
+        
+        for recipient in activeRecipients {
+            // Essayer d'abord la plateforme préférée du destinataire
+            let preferredPlatform = recipient.platforms.first ?? .imessage
+            
+            if preferredPlatform == .whatsapp && whatsAppScraper.isScrapingEnabled {
+                // Utiliser WhatsApp avec scraping
+                _ = multiPlatformManager.sendEmergencyMessage(
+                    to: recipient,
+                    message: message,
+                    platform: .whatsapp,
+                    useScraping: true
+                )
             } else {
-                store.appendLog(title: "Alerte déclenchée (SMS manuel)")
+                // Utiliser iMessage par défaut
+                _ = multiPlatformManager.sendEmergencyMessage(
+                    to: recipient,
+                    message: message,
+                    platform: .imessage,
+                    useScraping: false
+                )
             }
-        } else {
-            store.appendPendingAlert(body: body)
-            store.appendLog(title: "Alerte stockée (hors-ligne)")
+        }
+        
+        // Enregistrer l'alerte
+        store.addAlertLog(
+            AlertLog(
+                timestamp: Date(),
+                message: message,
+                location: loc.getFormattedLocation(),
+                wasSent: true
+            )
+        )
+        
+        // Haptic feedback de succès
+        let hapticFeedback = UIImpactFeedbackGenerator(style: .medium)
+        hapticFeedback.impactOccurred()
+    }
+    
+    private func triggerEmergencyAlert(with template: EmergencyTemplate) {
+        guard !isAlertActive else { return }
+        
+        isAlertActive = true
+        alertCountdown = 5
+        
+        // Déclencher l'alerte locale immédiatement
+        alertHandler.triggerLocalAlert()
+        
+        // Démarrer le compte à rebours
+        alertTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
+            if alertCountdown > 0 {
+                alertCountdown -= 1
+                
+                // Vibration continue pendant le compte à rebours
+                let impactFeedback = UIImpactFeedbackGenerator(style: .medium)
+                impactFeedback.impactOccurred()
+                
+            } else {
+                // Temps écoulé - envoyer le message avec le template
+                sendEmergencyMessageWithTemplate(template)
+                stopAlert()
+            }
         }
     }
     
-    private func startVibration() {
-        // Continuous vibration for 5 seconds
-        DispatchQueue.global(qos: .userInteractive).async {
-            for _ in 0..<50 { // 5 seconds with 0.1s intervals
-                DispatchQueue.main.async {
-                    hapticFeedback(.heavy)
+    private func sendEmergencyMessageWithTemplate(_ template: EmergencyTemplate) {
+        // Jouer le son d'alerte dissuasif
+        alertHandler.playAlertSound("alert")
+        
+        // Générer le message avec le template
+        let message = emergencyManager.generateEmergencyMessage(template: template, location: loc)
+        
+        // Envoyer selon les plateformes des destinataires
+        let activeRecipients = multiPlatformManager.recipients.filter { $0.isActive }
+        
+        for recipient in activeRecipients {
+            // Essayer d'abord la plateforme préférée du destinataire
+            let preferredPlatform = recipient.platforms.first ?? .imessage
+            
+            if preferredPlatform == .whatsapp && whatsAppScraper.isScrapingEnabled {
+                // Utiliser WhatsApp avec scraping
+                _ = multiPlatformManager.sendEmergencyMessage(
+                    to: recipient,
+                    message: message,
+                    platform: .whatsapp,
+                    useScraping: true
+                )
+            } else {
+                // Utiliser iMessage par défaut
+                _ = multiPlatformManager.sendEmergencyMessage(
+                    to: recipient,
+                    message: message,
+                    platform: .imessage,
+                    useScraping: false
+                )
+            }
+        }
+        
+        // Enregistrer l'alerte
+        store.addAlertLog(
+            AlertLog(
+                timestamp: Date(),
+                message: message,
+                location: loc.getFormattedLocation(),
+                wasSent: true
+            )
+        )
+        
+        // Haptic feedback de succès
+        let hapticFeedback = UIImpactFeedbackGenerator(style: .medium)
+        hapticFeedback.impactOccurred()
+    }
+    
+    // MARK: - UI Sections
+    
+    private var emergencyTemplatesSection: some View {
+        VStack(alignment: .leading, spacing: 15) {
+            HStack {
+                Text("🚨 Templates d'urgence")
+                    .font(.headline)
+                    .foregroundColor(.primary)
+                
+                Spacer()
+                
+                Button("Sélectionner") {
+                    showingEmergencyTemplateSelector = true
                 }
-                Thread.sleep(forTimeInterval: 0.1)
+                .buttonStyle(.borderedProminent)
+            }
+            
+            LazyVGrid(columns: [
+                GridItem(.flexible()),
+                GridItem(.flexible())
+            ], spacing: 15) {
+                ForEach(emergencyManager.templates.filter { $0.isActive }) { template in
+                    EmergencyTemplateCard(template: template) {
+                        triggerEmergencyAlert(with: template)
+                    }
+                }
+            }
+            
+            if emergencyManager.templates.filter({ $0.isActive }).isEmpty {
+                Text("Aucun template d'urgence actif")
+                    .foregroundColor(.secondary)
+                    .italic()
             }
         }
-    }
-    
-    private func stopVibration() {
-        // Stop vibration
-        hapticFeedback(.light)
-    }
-    
-    private func hapticFeedback(_ style: UIImpactFeedbackGenerator.FeedbackStyle) {
-        let impactFeedback = UIImpactFeedbackGenerator(style: style)
-        impactFeedback.impactOccurred()
-    }
-
-    private func addRecipient() {
-        let trimmed = newRecipient.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else { return }
-        store.addRecipient(trimmed)
-        newRecipient = ""
-        hapticFeedback(.light)
-    }
-
-    private func presentComposerForPending() {
-        guard let pending = store.popNextPendingAlert() else { return }
-        if MFMessageComposeViewController.canSendText() && !store.recipients.isEmpty {
-            composerBody = pending.body
-            showingComposer = true
-        } else {
-            store.appendLog(title: "Impossible de composer le SMS")
-        }
+        .padding()
+        .background(Color(.systemBackground))
+        .cornerRadius(15)
+        .shadow(radius: 2)
     }
 }
 
-// MARK: - Supporting Views
+// MARK: - Supporting Views (StatusCard, RecipientRow, AlertLogRow, EmergencyTemplateCard, MessageComposer, MessageComposeView)
 
 struct StatusCard: View {
     let title: String
-    let status: ConnectionStatus
+    let status: String
     let icon: String
-    let action: (() -> Void)?
+    let color: Color
     
     var body: some View {
         HStack {
             Image(systemName: icon)
                 .font(.title2)
-                .foregroundColor(status.color)
+                .foregroundColor(color)
                 .frame(width: 30)
             
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
                     .font(.subheadline)
-                    .fontWeight(.medium)
-                
-                Text(status.description)
-                    .font(.caption)
+                    .foregroundColor(.secondary)
+                Text(status)
+                    .font(.headline)
+                    .foregroundColor(.primary)
+            }
+            
+            Spacer()
+        }
+        .padding()
+        .background(Color(.systemBackground))
+        .cornerRadius(12)
+        .shadow(radius: 2)
+    }
+}
+
+struct RecipientRow: View {
+    let recipient: MessageRecipient
+    let action: () -> Void
+    
+    var body: some View {
+        HStack {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(recipient.name)
+                    .font(.headline)
+                Text(recipient.phoneNumber)
+                    .font(.subheadline)
                     .foregroundColor(.secondary)
             }
             
             Spacer()
             
-            if let action = action {
-                Button(action: action) {
-                    Text(status.actionText)
-                        .font(.caption)
-                        .fontWeight(.medium)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 6)
-                        .background(status.color.opacity(0.2))
-                        .foregroundColor(status.color)
-                        .clipShape(Capsule())
+            HStack(spacing: 8) {
+                ForEach(recipient.platforms, id: \.self) { platform in
+                    Image(systemName: platform.icon)
+                        .foregroundColor(Color(platform.color))
                 }
-                .disabled(status == .scanning)
             }
         }
-        .padding(16)
-        .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(Color(.systemBackground))
-                .shadow(color: .black.opacity(0.05), radius: 3, x: 0, y: 1)
-        )
-    }
-}
-
-struct RecipientRow: View {
-    let phoneNumber: String
-    let onDelete: () -> Void
-    
-    var body: some View {
-        HStack {
-            Image(systemName: "phone.fill")
-                .foregroundColor(.blue)
-                .frame(width: 20)
-            
-            Text(phoneNumber)
-                .font(.subheadline)
-            
-            Spacer()
-            
-            Button(action: onDelete) {
-                Image(systemName: "trash.fill")
-                    .foregroundColor(.red)
-            }
+        .padding()
+        .background(Color(.systemGray6))
+        .cornerRadius(10)
+        .onTapGesture {
+            action()
         }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 8)
-        .background(Color.blue.opacity(0.1))
-        .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 }
 
@@ -464,82 +504,99 @@ struct AlertLogRow: View {
     let log: AlertLog
     
     var body: some View {
-        HStack {
-            Image(systemName: "clock.fill")
-                .foregroundColor(.purple)
-                .frame(width: 20)
-            
-            VStack(alignment: .leading, spacing: 2) {
-                Text(log.title)
-                    .font(.subheadline)
-                    .fontWeight(.medium)
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text(log.timestamp, style: .time)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
                 
-                Text(log.timestamp.formatted(date: .numeric, time: .standard))
+                Spacer()
+                
+                Image(systemName: log.wasSent ? "checkmark.circle.fill" : "xmark.circle.fill")
+                    .foregroundColor(log.wasSent ? .green : .red)
+            }
+            
+            Text(log.message)
+                .font(.body)
+                .lineLimit(2)
+            
+            if !log.location.isEmpty {
+                Text("📍 \(log.location)")
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
-            
-            Spacer()
         }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 8)
-        .background(Color.purple.opacity(0.1))
-        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .padding()
+        .background(Color(.systemGray6))
+        .cornerRadius(10)
     }
 }
 
-enum ConnectionStatus {
-    case connected, scanning, disconnected
+struct EmergencyTemplateCard: View {
+    let template: EmergencyTemplate
+    let action: () -> Void
     
-    var color: Color {
-        switch self {
-        case .connected: return .green
-        case .scanning: return .orange
-        case .disconnected: return .red
+    var body: some View {
+        Button(action: action) {
+            VStack(alignment: .leading, spacing: 8) {
+                HStack {
+                    Image(systemName: template.category.icon)
+                        .foregroundColor(template.category.color)
+                        .font(.title2)
+                    
+                    Spacer()
+                    
+                    Text(template.name)
+                        .font(.headline)
+                        .foregroundColor(.primary)
+                        .multilineTextAlignment(.leading)
+                }
+                
+                Text(template.message)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .lineLimit(3)
+                    .multilineTextAlignment(.leading)
+            }
+            .padding()
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Color(.systemBackground))
+            .cornerRadius(12)
+            .shadow(radius: 2)
         }
+        .buttonStyle(PlainButtonStyle())
     }
-    
-    var description: String {
-        switch self {
-        case .connected: return "Connecté"
-        case .scanning: return "Scan en cours..."
-        case .disconnected: return "Non connecté"
-        }
-    }
-    
-    var actionText: String {
-        switch self {
-        case .connected: return "Reconnecter"
-        case .scanning: return "Scanning..."
-        case .disconnected: return "Scanner"
-        }
+}
+
+// MARK: - Message Composer
+
+class MessageComposer: NSObject, ObservableObject {
+    func canSendText() -> Bool {
+        return MFMessageComposeViewController.canSendText()
     }
 }
 
 struct MessageComposeView: UIViewControllerRepresentable {
-    var recipients: [String]
-    var body: String
-    var completion: (Bool) -> Void
-
-    func makeCoordinator() -> Coordinator { Coordinator(completion: completion) }
-
+    let recipients: [String]
+    let body: String
+    
     func makeUIViewController(context: Context) -> MFMessageComposeViewController {
-        let vc = MFMessageComposeViewController()
-        vc.recipients = recipients
-        vc.body = body
-        vc.messageComposeDelegate = context.coordinator
-        return vc
+        let controller = MFMessageComposeViewController()
+        controller.messageComposeDelegate = context.coordinator
+        controller.recipients = recipients
+        controller.body = body
+        return controller
     }
-
+    
     func updateUIViewController(_ uiViewController: MFMessageComposeViewController, context: Context) {}
-
+    
+    func makeCoordinator() -> Coordinator {
+        Coordinator()
+    }
+    
     class Coordinator: NSObject, MFMessageComposeViewControllerDelegate {
-        let completion: (Bool) -> Void
-        init(completion: @escaping (Bool) -> Void) { self.completion = completion }
         func messageComposeViewController(_ controller: MFMessageComposeViewController, didFinishWith result: MessageComposeResult) {
-            controller.dismiss(animated: true) {
-                self.completion(result == .sent)
-            }
+            controller.dismiss(animated: true)
         }
     }
 }
@@ -548,6 +605,8 @@ struct MessageComposeView: UIViewControllerRepresentable {
 
 struct SettingsView: View {
     @EnvironmentObject var settings: AlertSettingsManager
+    @EnvironmentObject var emergencyManager: EmergencyMessageManager
+    @EnvironmentObject var multiPlatformManager: MultiPlatformMessageManager
     @Environment(\.dismiss) private var dismiss
     
     var body: some View {
@@ -568,11 +627,51 @@ struct SettingsView: View {
                     Slider(value: $settings.settings.vibrationDuration, in: 1...10, step: 0.5)
                 }
                 
+                Section("Plateformes de messages") {
+                    Toggle("Messages multi-plateformes", isOn: $settings.settings.enableMultiPlatform)
+                    if settings.settings.enableMultiPlatform {
+                        Picker("Plateforme préférée", selection: $settings.settings.preferredPlatform) {
+                            ForEach(MessagePlatform.allCases) { platform in
+                                Text(platform.rawValue).tag(platform)
+                            }
+                        }
+                    }
+                }
+                
+                Section("Templates d'urgence") {
+                    ForEach(emergencyManager.templates) { template in
+                        Toggle(template.name, isOn: Binding(
+                            get: { template.isActive },
+                            set: { newValue in
+                                var updatedTemplate = template
+                                updatedTemplate.isActive = newValue
+                                emergencyManager.updateTemplate(updatedTemplate)
+                            }
+                        ))
+                    }
+                }
+                
+                Section("Message personnalisé") {
+                    TextEditor(text: Binding(
+                        get: { emergencyManager.customMessage },
+                        set: { emergencyManager.updateCustomMessage($0) }
+                    ))
+                    .frame(height: 100)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                    )
+                    
+                    Text("Variables disponibles: {ADDRESS}, {GPS}, {MAP_LINK}, {TIME}")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                
                 Section("À propos") {
                     HStack {
                         Text("Version")
                         Spacer()
-                        Text("1.0.0")
+                        Text("2.0.0")
                             .foregroundColor(.secondary)
                     }
                 }

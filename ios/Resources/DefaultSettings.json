@@ -1,0 +1,36 @@
+{
+  "alertSettings": {
+    "enableVibration": true,
+    "enableSound": true,
+    "enableSpeech": true,
+    "vibrationDuration": 5,
+    "autoSendSMS": true,
+    "preferredPlatform": "sms",
+    "enableMultiPlatform": false,
+    "alertVolume": 0.8,
+    "speechRate": 0.5,
+    "speechVolume": 0.7
+  },
+  "whatsAppScraping": {
+    "isEnabled": false,
+    "lastWarningShown": null,
+    "usageCount": 0,
+    "lastUsed": null,
+    "warnings": []
+  },
+  "locationSettings": {
+    "accuracy": "best",
+    "updateInterval": 10,
+    "backgroundUpdates": true,
+    "showAddress": true,
+    "showCoordinates": true,
+    "showMapLink": true
+  },
+  "notificationSettings": {
+    "enableLocalNotifications": true,
+    "enableSound": true,
+    "enableBadge": true,
+    "enableAlert": true,
+    "notificationStyle": "banner"
+  }
+}

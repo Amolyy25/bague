@@ -1,0 +1,33 @@
+{
+  "templates": [
+    {
+      "id": "aggression",
+      "name": "🚨 Agression",
+      "message": "🚨 ALERTE URGENCE - AGRESSION\n\n⚠️ J'ai besoin d'aide immédiatement !\n\n📍 Adresse: {ADDRESS}\n🌐 GPS: {GPS}\n🗺️ Carte: {MAP_LINK}\n\n⏰ Heure: {TIME}\n📱 App: SafetyRing\n🚔 Police: 17\n🚑 SAMU: 15",
+      "isActive": true,
+      "category": "aggression"
+    },
+    {
+      "id": "medical",
+      "name": "🏥 Urgence Médicale",
+      "message": "🚨 ALERTE URGENCE MÉDICALE\n\n⚠️ Assistance médicale requise !\n\n📍 Adresse: {ADDRESS}\n🌐 GPS: {GPS}\n🗺️ Carte: {MAP_LINK}\n\n⏰ Heure: {TIME}\n📱 App: SafetyRing\n🚑 SAMU: 15\n🚒 Pompiers: 18",
+      "isActive": true,
+      "category": "medical"
+    },
+    {
+      "id": "accident",
+      "name": "🚗 Accident de la Route",
+      "message": "🚨 ALERTE ACCIDENT DE LA ROUTE\n\n⚠️ Accident survenu, assistance requise !\n\n📍 Adresse: {ADDRESS}\n🌐 GPS: {GPS}\n🗺️ Carte: {MAP_LINK}\n\n⏰ Heure: {TIME}\n📱 App: SafetyRing\n🚔 Police: 17\n🚑 SAMU: 15\n🚒 Pompiers: 18",
+      "isActive": true,
+      "category": "accident"
+    },
+    {
+      "id": "danger",
+      "name": "⚠️ Danger Immédiat",
+      "message": "🚨 ALERTE DANGER IMMÉDIAT\n\n⚠️ Situation dangereuse détectée !\n\n📍 Adresse: {ADDRESS}\n🌐 GPS: {GPS}\n🗺️ Carte: {MAP_LINK}\n\n⏰ Heure: {TIME}\n📱 App: SafetyRing\n🚔 Police: 17\n🚑 SAMU: 15\n🚒 Pompiers: 18",
+      "isActive": true,
+      "category": "danger"
+    }
+  ],
+  "customMessage": "🚨 ALERTE URGENCE\n\n⚠️ J'ai besoin d'aide immédiatement !\n\n📍 Adresse: {ADDRESS}\n🌐 GPS: {GPS}\n🗺️ Carte: {MAP_LINK}\n\n⏰ Heure: {TIME}\n📱 App: SafetyRing\n🚔 Police: 17\n🚑 SAMU: 15"
+}
