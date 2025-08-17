@@ -1,93 +1,170 @@
-# SafetyRing iOS (Windows-friendly build via CI) + BLE Simulator
+# SafetyRing iOS - App d'alerte d'urgence moderne 🚨
 
-This repository contains:
-- iOS app (SwiftUI + CoreBluetooth) that connects to a BLE peripheral named "SafetyRing" and subscribes to Alert Notification (0x2A46). On receiving an "ALERT" payload, it triggers an alert workflow with SMS prefill and location.
-- Python BLE simulator (for Linux/macOS) to emulate the SafetyRing peripheral and send "ALERT" notifications. On Windows, use an Android app alternative.
-- GitHub Actions workflow to build an unsigned IPA on macOS runners, so you can sideload on Windows with Sideloadly. No local Xcode required.
+Une application iOS professionnelle avec interface moderne pour iPhone 12/16, connectée à une bague BLE "SafetyRing" pour déclencher des alertes d'urgence avec SMS automatique et localisation GPS.
 
-## Features
-- Scan/connect to BLE device named `SafetyRing`.
-- Subscribe to GATT New Alert characteristic (0x2A46) under Alert Notification Service (0x1811).
-- When an alert is received:
-  - Local visual notification + sound.
-  - Prefilled SMS via Messages app: "Alerte : j’ai besoin d’aide ! Localisation : …" to configured contacts.
-  - Includes GPS location link when available.
-- Offline handling (no network):
-  - Show local alert (visual + sound + vibration/haptic).
-  - Log event with timestamp to local storage.
-  - When connectivity returns, re-offer to send the alert SMS.
+## ✨ Nouvelles fonctionnalités (v2.0)
 
-## Limitations (important)
-- iOS does not allow sending SMS automatically without user interaction. The app will open the Messages composer with recipients and body prefilled; you must tap Send.
-- Building iOS apps requires macOS. This repo uses GitHub Actions (macOS runners) to build an unsigned IPA. You can then sideload the IPA on Windows with Sideloadly.
-- Simulating a BLE peripheral from Windows using Python isn’t supported with `bleak` at this time. Use:
-  - Linux/macOS + Python simulator (provided), or
-  - Android phone with the free "nRF Connect" app to emulate a peripheral advertising the required service/characteristic and sending the `ALERT` payload.
+### 🎨 Interface moderne iPhone 12/16
+- **Design fluide** avec NavigationStack et gradients subtils
+- **Cartes de statut** visuelles pour BLE et réseau
+- **Bouton d'alerte** rouge/orange avec ombres et animations
+- **Interface adaptative** pour tous les écrans iPhone
+- **Icônes SF Symbols** et typographie optimisée
 
-## Quick start (Windows)
+### 🚨 Système d'alerte intelligent
+- **Vibration de 5 secondes** avec possibilité d'annulation
+- **Compte à rebours visuel** pendant la période d'annulation
+- **SMS automatique** ou manuel selon les préférences
+- **Localisation GPS** incluse dans le message d'urgence
+- **Gestion hors-ligne** avec stockage et re-tentative
 
-1) Clone this repo to your Windows machine.
+### ⚙️ Personnalisation complète
+- **Paramètres d'alerte** configurables (vibration, son, SMS auto)
+- **Durée de vibration** ajustable (1-10 secondes)
+- **Sons d'alerte** personnalisables
+- **Gestion des destinataires** avec interface intuitive
+- **Journal des alertes** avec historique complet
 
-2) Push it to your own GitHub repository (required for CI):
-- Create a new empty repository on GitHub.
-- Add it as a remote and push:
-```
+## 🔧 Installation et test (Windows-friendly)
+
+### 1) Build via GitHub Actions (pas besoin de Xcode)
+```bash
 git init
 git add .
-git commit -m "Initial SafetyRing iOS"
+git commit -m "SafetyRing iOS v2.0 - Interface moderne + alertes intelligentes"
 git branch -M main
-git remote add origin https://github.com/<your-username>/<your-repo>.git
+git remote add origin https://github.com/<ton-user>/<ton-repo>.git
 git push -u origin main
 ```
 
-3) Wait for GitHub Actions to build an unsigned IPA:
-- Go to GitHub → Actions tab → workflow "Build iOS (unsigned IPA)".
-- When it finishes, download the artifact `SafetyRingApp-unsigned.ipa`.
+- Attends la fin du workflow "Build iOS (unsigned IPA)"
+- Télécharge l'artifact `SafetyRingApp-unsigned.ipa`
 
-4) Sideload the IPA on Windows:
-- Install Sideloadly (`https://sideloadly.io`).
-- Connect your iPhone via USB.
-- Open Sideloadly, select `SafetyRingApp-unsigned.ipa`, enter your Apple ID if asked (for signing), and install.
+### 2) Installation sur iPhone
+- Installe **Sideloadly** (`https://sideloadly.io`)
+- Branche ton iPhone en USB
+- Ouvre Sideloadly → sélectionne l'IPA → installe
+- **Autorise l'app** : Réglages → VPN et gestion de l'appareil → Fais confiance à [ton email]
 
-5) Grant permissions on first app launch on iPhone:
-- Bluetooth, Location (While Using the App), Notifications.
+### 3) Configuration de l'app
+- Ouvre SafetyRing → autorise Bluetooth, Localisation, Notifications
+- Ajoute des destinataires SMS (format international : `+33612345678`)
+- Configure tes préférences dans l'onglet Paramètres (⚙️)
 
-6) Configure recipients:
-- In the app, add one or more phone numbers in international format (e.g., `+33612345678`).
+## 🧪 Test des alertes BLE
 
-7) Test BLE alert:
-- Option A (recommended on Windows): Use an Android phone with "nRF Connect".
-  - Create a peripheral with the Alert Notification Service (UUID 0x1811) and characteristic "New Alert" (UUID 0x2A46, Notify).
-  - Advertise name `SafetyRing`.
-  - Send a notification with ASCII payload `ALERT`.
-- Option B (Linux/macOS): Run the Python simulator:
-```
+### Option Windows (recommandée) : Android + nRF Connect
+1. **Installe "nRF Connect"** sur un téléphone Android
+2. **Ouvre l'onglet "Advertiser"**
+3. **Configure le périphérique :**
+   - **Nom** : `SafetyRing`
+   - **Service** : Alert Notification `0x1811`
+   - **Caractéristique** : New Alert `0x2A46` (propriété Notify)
+4. **Démarre l'annonce**
+5. **Dans l'app iOS** : statut doit passer à "Connecté à SafetyRing"
+6. **Dans nRF Connect** : envoie une notification avec valeur `ALERT`
+
+### Option Linux/macOS : Simulateur Python
+```bash
 python3 -m venv .venv
-. .venv/bin/activate   # Windows PowerShell: .venv\Scripts\Activate.ps1
+source .venv/bin/activate  # PowerShell: .venv\Scripts\Activate.ps1
 pip install -r sim_requirements.txt
 python sim_ring.py
 ```
-  - Press Enter to emit an `ALERT` notification.
+- Appuie **Entrée** pour émettre un `ALERT`
 
-8) Offline scenario:
-- Disable data/Wi‑Fi.
-- Trigger an alert.
-- The app logs the event and notifies you locally.
-- Re-enable network; the app will propose sending the SMS.
+## 🚀 Utilisation de l'app
 
-## Notes on BLE characteristic 0x2A46
-The official New Alert (0x2A46) characteristic is structured data. For this prototype, the app treats any notification payload containing ASCII `ALERT` as a trigger.
+### Déclenchement d'alerte
+1. **Appuie sur "DÉCLENCHER ALERTE"** (bouton rouge)
+2. **Vibration de 5 secondes** commence immédiatement
+3. **Compte à rebours** affiché avec possibilité d'annulation
+4. **Après 5 secondes** : SMS automatique préparé (si activé)
+5. **Validation** : tu tapes "Envoyer" dans l'app Messages
 
-## Project structure
-- `ios/` — iOS app sources, XcodeGen project spec, Info.plist
-- `.github/workflows/ios_build.yml` — CI building unsigned IPA
-- `sim_ring.py` — BLE peripheral simulator (Linux/macOS)
-- `sim_requirements.txt` — Python requirements for the simulator
+### Gestion hors-ligne
+- **Alerte stockée** localement avec timestamp
+- **Re-proposition** automatique quand le réseau revient
+- **Journal complet** de toutes les actions
 
-## Troubleshooting
-- If the app doesn’t see your simulator, ensure it advertises the name `SafetyRing` and includes the Alert Notification Service (0x1811). Ensure the characteristic 0x2A46 has Notify enabled.
-- If IPA fails to install, ensure you’re using a recent iOS version and Sideloadly, and that your Apple ID can be used for sideloading.
-- Location might take a few seconds to acquire; the SMS will still be prefilled even if no coordinates are available yet.
+### Personnalisation
+- **Paramètres** → icône ⚙️ en haut à droite
+- **Vibration** : active/désactive + durée
+- **Son d'alerte** : personnalisable
+- **SMS automatique** : préparation automatique ou manuelle
 
-## Security
-This app is a prototype. Phone numbers are stored locally on-device using `UserDefaults`. Do not rely on it as a life-critical system.
+## 🏗️ Architecture technique
+
+### Structure du projet
+```
+ios/
+├── Sources/
+│   ├── App/           # SwiftUI main views
+│   ├── BLE/           # CoreBluetooth manager
+│   ├── Location/      # GPS location
+│   ├── Alert/         # Alert handling + storage
+│   └── Reachability/  # Network monitoring
+├── Resources/          # Info.plist, assets
+└── project.yml        # XcodeGen configuration
+```
+
+### Composants clés
+- **BLEManager** : Scan/connect BLE "SafetyRing"
+- **AlertHandler** : Notifications + sons + haptics
+- **AlertStore** : Stockage local + gestion hors-ligne
+- **AlertSettingsManager** : Configuration utilisateur
+- **LocationManager** : GPS pour localisation d'urgence
+
+## 🔒 Sécurité et limitations
+
+### Limitations iOS
+- **SMS automatique impossible** : validation utilisateur requise
+- **Bluetooth background** : limité par iOS
+- **Localisation** : autorisation "Pendant l'utilisation" requise
+
+### Stockage local
+- **Destinataires** : UserDefaults (chiffré par iOS)
+- **Logs d'alerte** : JSON local
+- **Paramètres** : UserDefaults persistants
+
+## 🐛 Dépannage
+
+### L'app ne voit pas SafetyRing
+- Vérifie le nom exact : `SafetyRing`
+- Service : `0x1811` (Alert Notification)
+- Caractéristique : `0x2A46` avec Notify activé
+- Autorisations Bluetooth sur iPhone
+
+### IPA n'installe pas
+- **Sideloadly** à jour
+- **iOS 16+** requis
+- **Apple ID** valide pour signature
+- **Autorisation** : VPN et gestion de l'appareil
+
+### Alerte ne fonctionne pas
+- **Destinataires** configurés
+- **Autorisations** accordées
+- **Réseau** disponible (ou mode hors-ligne)
+- **Vibration** activée dans Paramètres
+
+## 📱 Compatibilité
+
+- **iOS** : 16.0+
+- **iPhone** : 12, 13, 14, 15, 16
+- **Bluetooth** : BLE 4.0+
+- **Localisation** : GPS + réseau
+
+## 🎯 Roadmap
+
+- [ ] **Widgets iOS** pour accès rapide
+- [ ] **Apple Watch** companion app
+- [ ] **Siri Shortcuts** intégration
+- [ ] **Mode urgence** avec contacts prioritaires
+- [ ] **Historique des positions** avec carte
+- [ ] **Export des logs** pour analyse
+
+---
+
+**⚠️ Avertissement** : Cette app est un prototype. Ne pas utiliser comme système de sécurité critique sans tests approfondis.
+
+**💡 Support** : Issues GitHub pour bugs, suggestions pour améliorations.

@@ -7,6 +7,7 @@ struct SafetyRingApp: App {
     @StateObject private var reachability = ReachabilityMonitor()
     @StateObject private var alertStore = AlertStore()
     @StateObject private var alertHandler = AlertHandler()
+    @StateObject private var alertSettings = AlertSettingsManager()
 
     var body: some Scene {
         WindowGroup {
@@ -16,6 +17,7 @@ struct SafetyRingApp: App {
                 .environmentObject(reachability)
                 .environmentObject(alertStore)
                 .environmentObject(alertHandler)
+                .environmentObject(alertSettings)
                 .onAppear {
                     alertHandler.requestNotificationPermission()
                     bleManager.start()
