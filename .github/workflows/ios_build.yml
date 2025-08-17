@@ -18,25 +18,24 @@ jobs:
           xcodegen generate
       - name: Build app (Release, unsigned)
         run: |
+          set -euo pipefail
+          # Build for device (no signing), output into ./build
           xcodebuild \
             -project ios/SafetyRingApp.xcodeproj \
             -scheme SafetyRingApp \
             -configuration Release \
+            -sdk iphoneos \
             -destination 'generic/platform=iOS' \
-            -archivePath build/SafetyRingApp.xcarchive \
             CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGNING_IDENTITY="" DEVELOPMENT_TEAM="" \
-            clean archive | cat
+            BUILD_DIR=$PWD/build \
+            clean build
       - name: Package unsigned IPA
         run: |
           set -e
           echo "Listing archive contents for diagnostics:" >&2
           ls -R build || true
-          # Try expected path first
-          APP_PATH=build/SafetyRingApp.xcarchive/Products/Applications/SafetyRingApp.app
-          if [ ! -d "$APP_PATH" ]; then
-            # Fallback: find the first .app produced anywhere under build/
-            APP_PATH=$(find build -type d -name "*.app" | head -n 1)
-          fi
+          # Find the first .app produced anywhere under build/
+          APP_PATH=$(find build -type d -name "*.app" | head -n 1)
           if [ -z "$APP_PATH" ] || [ ! -d "$APP_PATH" ]; then
             echo "Could not locate .app under build/." >&2
             exit 1
