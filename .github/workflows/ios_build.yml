@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    runs-on: macos-13
+    runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
       - name: Install XcodeGen
@@ -18,11 +18,23 @@ jobs:
           xcodegen generate
       - name: Build app (Release, unsigned)
         run: |
-          xcodebuild -project ios/SafetyRingApp.xcodeproj -scheme SafetyRingApp -sdk iphoneos -configuration Release build CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO | cat
+          xcodebuild \
+            -project ios/SafetyRingApp.xcodeproj \
+            -scheme SafetyRingApp \
+            -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGNING_IDENTITY="" DEVELOPMENT_TEAM="" \
+            build | cat
       - name: Package unsigned IPA
         run: |
           set -e
-          APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -type d -name "Build" -maxdepth 5 | head -n1)/Products/Release-iphoneos/SafetyRingApp.app
+          APP_PATH=build/Build/Products/Release-iphoneos/SafetyRingApp.app
+          if [ ! -d "$APP_PATH" ]; then
+            echo "App not found at $APP_PATH" >&2
+            ls -R build/Build/Products || true
+            exit 1
+          fi
           mkdir -p Payload
           cp -R "$APP_PATH" Payload/
           zip -r SafetyRingApp-unsigned.ipa Payload
