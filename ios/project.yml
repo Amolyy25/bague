@@ -1,0 +1,25 @@
+name: SafetyRingApp
+options:
+  xcodeVersion: 15.0
+  deploymentTarget:
+    iOS: "16.0"
+targets:
+  SafetyRingApp:
+    type: application
+    platform: iOS
+    deploymentTarget: "16.0"
+    info:
+      path: Resources/Info.plist
+    sources:
+      - path: Sources
+    resources:
+      - path: Resources
+    settings:
+      PRODUCT_BUNDLE_IDENTIFIER: com.safetyring.app
+      PRODUCT_NAME: SafetyRingApp
+      SWIFT_VERSION: 5.0
+      CODE_SIGNING_ALLOWED: NO
+      CODE_SIGNING_REQUIRED: NO
+    scheme:
+      testTargets: []
+

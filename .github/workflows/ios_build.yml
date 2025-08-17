@@ -1,0 +1,34 @@
+name: Build iOS (unsigned IPA)
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-13
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install XcodeGen
+        run: brew install xcodegen
+      - name: Generate Xcode project
+        run: |
+          cd ios
+          xcodegen generate
+      - name: Build app (Release, unsigned)
+        run: |
+          xcodebuild -project ios/SafetyRingApp.xcodeproj -scheme SafetyRingApp -sdk iphoneos -configuration Release build CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO | cat
+      - name: Package unsigned IPA
+        run: |
+          set -e
+          APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -type d -name "Build" -maxdepth 5 | head -n1)/Products/Release-iphoneos/SafetyRingApp.app
+          mkdir -p Payload
+          cp -R "$APP_PATH" Payload/
+          zip -r SafetyRingApp-unsigned.ipa Payload
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SafetyRingApp-unsigned
+          path: SafetyRingApp-unsigned.ipa
+
