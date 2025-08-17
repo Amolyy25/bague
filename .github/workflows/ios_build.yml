@@ -10,6 +10,17 @@ jobs:
     runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
+      - name: Select newest available Xcode
+        run: |
+          set -e
+          echo "Available Xcodes:" >&2
+          ls -d /Applications/Xcode*.app || true
+          NEWEST=$(ls -d /Applications/Xcode*.app 2>/dev/null | sort -V | tail -n 1 || true)
+          if [ -n "$NEWEST" ]; then
+            echo "Switching to $NEWEST" >&2
+            sudo xcode-select -s "$NEWEST"
+          fi
+          xcodebuild -version
       - name: Install XcodeGen
         run: brew install xcodegen
       - name: Generate Xcode project
