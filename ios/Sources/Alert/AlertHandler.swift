@@ -1,6 +1,7 @@
 import Foundation
 import UserNotifications
 import AVFoundation
+import UIKit
 
 final class AlertHandler: ObservableObject {
     static let alertNotificationName = Notification.Name("SafetyRingAlert")

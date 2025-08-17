@@ -1,5 +1,6 @@
 import SwiftUI
 import MessageUI
+import UIKit
 
 struct AlertSettings {
     var enableVibration: Bool = true
@@ -88,7 +89,7 @@ struct ContentView: View {
         }
         .onReceive(ble.$isConnected) { connected in
             if connected {
-                hapticFeedback(.success)
+                hapticFeedback(.medium)
             }
         }
     }
@@ -305,7 +306,7 @@ struct ContentView: View {
         alertTimer = nil
         stopVibration()
         
-        hapticFeedback(.success)
+        hapticFeedback(.medium)
         store.appendLog(title: "Alerte annulée par l'utilisateur")
     }
     
