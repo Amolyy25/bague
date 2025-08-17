@@ -1,6 +1,6 @@
 name: SafetyRingApp
 options:
-  xcodeVersion: 15.0
+  xcodeVersion: "15.4"
   deploymentTarget:
     iOS: "16.0"
 targets:
