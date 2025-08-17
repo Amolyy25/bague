@@ -29,11 +29,16 @@ jobs:
       - name: Package unsigned IPA
         run: |
           set -e
+          echo "Listing archive contents for diagnostics:" >&2
+          ls -R build || true
+          # Try expected path first
           APP_PATH=build/SafetyRingApp.xcarchive/Products/Applications/SafetyRingApp.app
           if [ ! -d "$APP_PATH" ]; then
-            echo "App not found at $APP_PATH" >&2
-            echo "Listing build folder for diagnostics:" >&2
-            ls -R build || true
+            # Fallback: find the first .app produced anywhere under build/
+            APP_PATH=$(find build -type d -name "*.app" | head -n 1)
+          fi
+          if [ -z "$APP_PATH" ] || [ ! -d "$APP_PATH" ]; then
+            echo "Could not locate .app under build/." >&2
             exit 1
           fi
           mkdir -p Payload
